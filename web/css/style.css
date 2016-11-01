@@ -1,0 +1,16 @@
+.unit
+{
+    background-color:rgb(100, 218, 237);
+    width: 76px;
+    height: 40px;
+}
+.container-fluid
+{
+    margin-top: 10px;
+}
+
+table#jobTable
+{
+    border-collapse: separate;
+    border-spacing: 5px;
+}

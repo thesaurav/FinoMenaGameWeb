@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+         version="3.1">
+    <servlet>
+        <servlet-name>EventHandler</servlet-name>
+        <servlet-class>EventHandler</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>EventHandler</servlet-name>
+        <url-pattern>/EventHandler</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>EventHandlerServlet</servlet-name>
+        <servlet-class>EventHandlerServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>EventHandlerServlet</servlet-name>
+        <url-pattern>/EventHandlerServlet</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>RegisterUserServlet</servlet-name>
+        <servlet-class>RegisterUserServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>RegisterUserServlet</servlet-name>
+        <url-pattern>/RegisterUserServlet</url-pattern>
+    </servlet-mapping>
+</web-app>
