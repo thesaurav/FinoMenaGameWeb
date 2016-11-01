@@ -6,11 +6,28 @@
 }
 .container-fluid
 {
-    margin-top: 10px;
+    margin-top: 0px;
 }
 
 table#jobTable
 {
     border-collapse: separate;
     border-spacing: 5px;
+}
+
+.portfolio_description {
+    position:absolute;
+    width:100%;
+    top:0;
+    background-color:rgba(255, 255, 255, 0.5);
+}
+#conf
+{
+    position: absolute;
+    width: 500px;
+    height: 200px;
+    z-index: 15;
+    top: 50%;
+    left: 50%;
+    margin: -100px 0 0 -150px;
 }

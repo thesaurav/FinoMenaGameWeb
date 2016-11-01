@@ -29,4 +29,13 @@
         <servlet-name>RegisterUserServlet</servlet-name>
         <url-pattern>/RegisterUserServlet</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ConfigureServlet</servlet-name>
+        <servlet-class>ConfigureServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ConfigureServlet</servlet-name>
+        <url-pattern>/ConfigureServlet</url-pattern>
+    </servlet-mapping>
 </web-app>

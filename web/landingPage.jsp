@@ -1,12 +1,9 @@
-<%@ page import="java.io.DataInputStream" %>
-<%@ page import="java.io.DataOutputStream" %>
-<%@ page import="java.io.IOException" %>
-<%@ page import="java.net.Socket" %>
-<%@ page import="java.net.UnknownHostException" %>
 <%@ page import="java.util.Random" %>
 <%@ page import="java.text.DecimalFormat" %>
 <%@ page import="jdk.nashorn.internal.codegen.CompilerConstants" %>
-<%@ page import="java.util.concurrent.*" %><%--
+<%@ page import="java.util.concurrent.*" %>
+<%@ page import="java.io.*" %>
+<%@ page import="java.net.*" %><%--
   Created by IntelliJ IDEA.
   User: kumar
   Date: 29-10-2016
@@ -27,6 +24,47 @@
 </head>
 <body>
 
+<%!
+    int x = 21;
+    int y = 25;
+public String getTableXY()
+{
+    try {
+        URL url = new URL("http://localhost:9090/api/FGame/tableWidth");
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setDoOutput(true);
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type", "application/json");
+
+
+        OutputStream os = conn.getOutputStream();
+        os.write("temp".getBytes());
+        os.flush();
+
+        if (conn.getResponseCode() != HttpURLConnection.HTTP_CREATED) {
+            throw new RuntimeException("Failed : HTTP error code : "
+                    + conn.getResponseCode());
+        }
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(
+                (conn.getInputStream())));
+
+        String output = br.readLine();
+
+        return output;
+    }
+    catch (MalformedURLException e)
+    {
+        e.printStackTrace();
+    }
+    catch (IOException e)
+    {
+        e.printStackTrace();
+    }
+
+    return null;
+}
+%>
 <%
 
     String playerId = request.getAttribute("playerId").toString();
@@ -43,59 +81,23 @@
     color3 = color[2];
 
     String fColor = "\"rgb(" + color1 + "," + color2 + "," + color3 + ")\"";
-
-    Thread thread = new Thread(new Runnable()
+    String []dim = getTableXY().split(":");
+    if(dim.length > 1)
     {
-        @Override
-        public void run()
-        {
-            Random r =new Random();
-            int port = r.nextInt(1000);
-            System.out.println("port" + port);
-            Socket smtpSocket = null;
-            DataInputStream is = null;
-            try {
-                smtpSocket = new Socket("localhost", 9999);
-                //os = new DataOutputStream(smtpSocket.getOutputStream());
-                is = new DataInputStream(smtpSocket.getInputStream());
-            } catch (UnknownHostException e) {
-                System.err.println("Don't know about host: hostname");
-            } catch (IOException e) {
-                System.err.println("Couldn't get I/O for the connection to: hostname");
-            }
-
-            if (smtpSocket != null  && is != null) {
-                try {
-                    //os.writeBytes("HELO\n");
-                    String responseLine;
-                    while ((responseLine = is.readLine()) != null) {
-                        System.out.println("Server: " + responseLine);
-                        String id = "\"" + responseLine.split("&")[0] + "\"";
-                        String color = "\"" + responseLine.split("&")[1] + "\"";
-                        if (responseLine.indexOf("Ok") != -1) {
-                            break;
-                        }
-                    }
-                    //os.close();
-                    is.close();
-                    //smtpSocket.close();
-                } catch (UnknownHostException e) {
-                    System.err.println("Trying to connect to unknown host: " + e);
-                } catch (IOException e) {
-                    System.err.println("IOException:  " + e);
-                }
-            }
-        }
-    });
-    thread.start();
+        x = Integer.parseInt(dim[0]);
+        y = Integer.parseInt(dim[1]);
+    }
 %>
 
 <div class="container-fluid">
+    <div class="col-sm-15" style="background-color:lavender;">
+        <div id="Name">Name: <%=playerName%>   Score: 0</div>
+    </div>
     <table id="jobTable">
-        <% for (int heightIndex = 0; heightIndex < 21; heightIndex++)
+        <% for (int heightIndex = 0; heightIndex < x; heightIndex++)
         {%>
         <tr>
-            <% for (int widthIndex = 0; widthIndex < 25; widthIndex++)
+            <% for (int widthIndex = 0; widthIndex < y; widthIndex++)
             {
                 String id = heightIndex+ "tdId" + widthIndex;
             %>
@@ -110,7 +112,6 @@
             var id = <%="\""+preSet[index].split("&")[0]+"\""%>;
             cars.push(id);
             document.getElementById(id).style.background = col;
-            console.log(col + " "+ id+" "+index);
         </script>
         <%
             }
@@ -159,16 +160,19 @@
         var url = "http://192.168.0.101:9090/api/FGame/updateScore/";
         var client = new XMLHttpRequest();
         client.open('POST', url, true);
-        var myData= "-" + event.id + "&" + <%=fColor%>;
+        var myData= "-" + event.id + "&" + <%=fColor%> + ":" + <%="\""+playerId+"\""%>;
         client.send(myData);
         client.onreadystatechange = function() {
-            if(client.status == 200 && client.response == "Success")
+            if(client.status == 200 && client.response != 0)
             {
                 var r = <%=color1%>;
                 var g = <%=color2%>;
                 var b = <%=color3%>;
                 var col = "rgb(" + r + "," + g + "," + b + ")";
                 document.getElementById(event.id).style.background = col;
+                var show = "Name :" + <%="\""+playerName+"\""%> + "                                           Score:" + client.response;
+                document.getElementById("Name").innerHTML = show;
+                console.log(event.id + "    click " + col);
                 var temp = 0;
                 for(var index = 0; index < cars.length; index++)
                 {
@@ -183,12 +187,46 @@
                     cars.push(event.id);
                 }
             }
-            else if(client.status == 200)
+        };
+    }
+
+    this.timer = setInterval('update()', 1000);
+    function update(event)
+    {
+        var url = "http://192.168.0.101:9090/api/FGame/dynamic/";
+        var client = new XMLHttpRequest();
+        client.open('GET', url, true);
+        client.send(null);
+        client.onreadystatechange = function() {
+            if(client.status == 200 && client.responseText != "")
             {
-                return;
+                var res = client.response.split(":");
+                for(var index = 0; index < res.length; index++)
+                {
+                    var arr = res[index].split("&");
+                    if(arr.length > 1)
+                    {
+                        document.getElementById(arr[0]).style.background = arr[1];
+
+                        var temp = 0;
+                        for(var count = 0; count < cars.length; count++)
+                        {
+                            if(cars[count] == arr[0])
+                            {
+                                temp = 1;
+                            }
+                        }
+                        if(temp == 0)
+                        {
+                            cars.push(arr[0]);
+                        }
+
+                    }
+                }
             }
         };
     }
+
 </SCRIPT>
 </body>
 </html>
